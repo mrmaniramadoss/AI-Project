@@ -1,6 +1,9 @@
 import csv
+import hashlib
 import io
 import json
+import logging
+import os
 import pickle
 from pathlib import Path
 
@@ -19,7 +22,10 @@ from auth import (
 )
 from database import get_db, init_db
 
+logger = logging.getLogger(__name__)
+
 MODEL_PATH = Path("artifacts/house_price_model.pkl")
+MODEL_HASH_PATH = Path("artifacts/house_price_model.sha256")
 
 
 # ── Schemas ──────────────────────────────────────────────────────────────────
@@ -43,12 +49,19 @@ class PredictRequest(BaseModel):
 
 app = FastAPI(title="House Price Prediction API", version="2.0.0")
 
+_default_origins = "http://localhost:5173,http://127.0.0.1:5173"
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("ALLOWED_ORIGINS", _default_origins).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 
@@ -59,13 +72,41 @@ def on_startup():
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+def _verify_model_integrity() -> None:
+    """Verify the model file has not been tampered with.
+
+    Compares the SHA-256 hash of the current .pkl file against the
+    expected hash stored on disk.  The hash file is generated at
+    training time by ``model.py``.
+    """
+    if not MODEL_HASH_PATH.exists():
+        logger.warning(
+            "Model hash file not found at %s — skipping integrity check. "
+            "Re-run `python model.py` to generate it.",
+            MODEL_HASH_PATH,
+        )
+        return
+
+    expected_hash = MODEL_HASH_PATH.read_text().strip()
+    sha256 = hashlib.sha256(MODEL_PATH.read_bytes()).hexdigest()
+    if sha256 != expected_hash:
+        raise RuntimeError(
+            "Model integrity check failed — the artifact may have been tampered with."
+        )
+
+
 def load_artifact() -> dict:
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
             "Model file not found. Run `python model.py` first to generate the .pkl file."
         )
+
+    _verify_model_integrity()
+
+    # NOTE: pickle.load can execute arbitrary code.  The integrity
+    # check above ensures the file has not been modified since training.
     with MODEL_PATH.open("rb") as model_file:
-        return pickle.load(model_file)
+        return pickle.load(model_file)  # noqa: S301
 
 
 # ── Health ───────────────────────────────────────────────────────────────────
@@ -156,7 +197,11 @@ def predict(payload: PredictRequest, user=Depends(get_optional_user)):
     except FileNotFoundError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {exc}") from exc
+        logger.exception("Prediction failed")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again later.",
+        ) from exc
 
 
 # ── Predictions history ──────────────────────────────────────────────────────

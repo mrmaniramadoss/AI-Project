@@ -1,3 +1,4 @@
+import hashlib
 import pickle
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from sklearn.model_selection import train_test_split
 DATA_PATH = Path("Test.csv")
 ARTIFACTS_DIR = Path("artifacts")
 MODEL_PATH = ARTIFACTS_DIR / "house_price_model.pkl"
+MODEL_HASH_PATH = ARTIFACTS_DIR / "house_price_model.sha256"
 
 
 def train_and_save_model() -> None:
@@ -46,7 +48,11 @@ def train_and_save_model() -> None:
             model_file,
         )
 
+    model_hash = hashlib.sha256(MODEL_PATH.read_bytes()).hexdigest()
+    MODEL_HASH_PATH.write_text(model_hash)
+
     print(f"Model saved to: {MODEL_PATH}")
+    print(f"Model hash saved to: {MODEL_HASH_PATH}")
 
 
 if __name__ == "__main__":
