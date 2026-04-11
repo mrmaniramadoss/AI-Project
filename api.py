@@ -38,6 +38,25 @@ class LoginRequest(BaseModel):
 class PredictRequest(BaseModel):
     features: dict[str, float]
 
+    @field_validator("features")
+    @classmethod
+    def validate_features(cls, value: dict[str, float]) -> dict[str, float]:
+        if not value:
+            raise ValueError("features must not be empty")
+
+        non_finite = [key for key, val in value.items() if not math.isfinite(val)]
+        if non_finite:
+            raise ValueError(
+                f"Non-finite values are not allowed. "
+                f"Invalid features: {', '.join(non_finite)}"
+            )
+
+        return value
+
+
+class PredictResponse(BaseModel):
+    predicted_price: float
+
 
 # ── App ──────────────────────────────────────────────────────────────────────
 
@@ -128,16 +147,23 @@ def predict(payload: PredictRequest, user=Depends(get_optional_user)):
     try:
         artifact = load_artifact()
         model = artifact["model"]
-        feature_names = artifact["feature_names"]
+        feature_names: list[str] = artifact["feature_names"]
 
         missing = [name for name in feature_names if name not in payload.features]
         if missing:
             raise HTTPException(
-                status_code=400,
+                status_code=422,
                 detail=f"Missing features: {', '.join(missing)}",
             )
 
-        row = {name: float(payload.features[name]) for name in feature_names}
+        extra = [name for name in payload.features if name not in feature_names]
+        if extra:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Unexpected features: {', '.join(extra)}",
+            )
+
+        row = {name: payload.features[name] for name in feature_names}
         input_df = pd.DataFrame([row], columns=feature_names)
         prediction = float(model.predict(input_df)[0])
 
@@ -154,7 +180,7 @@ def predict(payload: PredictRequest, user=Depends(get_optional_user)):
     except HTTPException:
         raise
     except FileNotFoundError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {exc}") from exc
 
