@@ -44,7 +44,7 @@ def create_booking(body: BookingCreate, user=Depends(get_current_user)):
             "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
             (truck["dealer_id"], "new_booking", "New Booking",
              f"New booking from {user['username']} for truck #{body.truck_id}",
-             f"/bookings/{booking_id}"),
+             "/bookings"),
         )
 
     return {"id": booking_id, "message": "Booking created successfully"}
@@ -147,7 +147,7 @@ def update_booking(booking_id: int, body: BookingUpdate, user=Depends(get_curren
                 "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
                 (notify_user, "booking_update", "Booking Updated",
                  f"Booking #{booking_id} status changed to {body.status or 'updated'}",
-                 f"/bookings/{booking_id}"),
+                 "/bookings"),
             )
 
     return {"message": "Booking updated"}

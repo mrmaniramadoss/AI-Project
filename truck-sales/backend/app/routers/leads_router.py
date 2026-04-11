@@ -47,7 +47,7 @@ def create_lead(body: LeadCreate, user=Depends(get_current_user)):
             "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
             (truck["dealer_id"], "new_lead", "New Inquiry",
              f"New inquiry from {user['username']} for truck #{body.truck_id}",
-             f"/leads/{lead_id}"),
+             "/leads"),
         )
 
     return {"id": lead_id, "message": "Inquiry submitted successfully"}
@@ -128,7 +128,7 @@ def update_lead(lead_id: int, body: LeadUpdate, user=Depends(get_current_user)):
                 "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
                 (notify_user, "lead_update", "Inquiry Updated",
                  f"Inquiry #{lead_id} status changed to {body.status or 'updated'}",
-                 f"/leads/{lead_id}"),
+                 "/leads"),
             )
 
     return {"message": "Lead updated"}

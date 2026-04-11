@@ -33,7 +33,7 @@ def send_message(body: ChatMessageCreate, user=Depends(get_current_user)):
             "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
             (body.receiver_id, "new_message", "New Message",
              f"New message from {user['username']}",
-             f"/chat/{user['id']}"),
+             f"/chat?user={user['id']}"),
         )
 
     return {"id": msg_id, "message": "Message sent"}
