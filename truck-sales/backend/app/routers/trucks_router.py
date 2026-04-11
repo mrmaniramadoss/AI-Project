@@ -231,5 +231,8 @@ def delete_truck(truck_id: int, user=Depends(require_role("dealer", "admin"))):
             raise HTTPException(status_code=404, detail="Truck not found")
         if user["role"] != "admin" and existing["dealer_id"] != user["id"]:
             raise HTTPException(status_code=403, detail="Not your truck listing")
-        conn.execute("DELETE FROM trucks WHERE id = ?", (truck_id,))
+        try:
+            conn.execute("DELETE FROM trucks WHERE id = ?", (truck_id,))
+        except Exception:
+            raise HTTPException(status_code=409, detail="Cannot delete truck with existing bookings or inquiries")
     return {"message": "Truck deleted"}

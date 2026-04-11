@@ -11,7 +11,6 @@ router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 class BookingCreate(BaseModel):
     truck_id: int
-    amount: float
     payment_method: str = ""
     notes: str = ""
 
@@ -127,7 +126,9 @@ def update_booking(booking_id: int, body: BookingUpdate, user=Depends(get_curren
             if body.status == "completed":
                 conn.execute("UPDATE trucks SET availability = 'sold' WHERE id = ?", (booking["truck_id"],))
             elif body.status == "cancelled":
-                conn.execute("UPDATE trucks SET availability = 'available' WHERE id = ?", (booking["truck_id"],))
+                truck = conn.execute("SELECT availability FROM trucks WHERE id = ?", (booking["truck_id"],)).fetchone()
+                if truck and truck["availability"] == "reserved":
+                    conn.execute("UPDATE trucks SET availability = 'available' WHERE id = ?", (booking["truck_id"],))
 
         if body.payment_id is not None:
             updates.append("payment_id = ?")

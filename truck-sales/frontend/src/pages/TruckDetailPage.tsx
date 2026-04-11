@@ -73,7 +73,7 @@ export default function TruckDetailPage() {
     }
     if (!truck) return;
     try {
-      await api.post('/bookings', { truck_id: truck.id, amount: truck.price });
+      await api.post('/bookings', { truck_id: truck.id });
       alert('Booking created! Check your bookings page.');
       navigate('/bookings');
     } catch (err: unknown) {
