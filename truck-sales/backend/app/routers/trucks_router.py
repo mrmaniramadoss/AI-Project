@@ -159,15 +159,17 @@ def get_brands():
 
 
 @router.get("/{truck_id}")
-def get_truck(truck_id: int):
+def get_truck(truck_id: int, user=Depends(get_optional_user)):
     with get_db() as conn:
-        conn.execute("UPDATE trucks SET views = views + 1 WHERE id = ?", (truck_id,))
         row = conn.execute(
             """SELECT t.*, u.username as dealer_name, u.company as dealer_company,
                       u.phone as dealer_phone, u.email as dealer_email
                FROM trucks t JOIN users u ON t.dealer_id = u.id WHERE t.id = ?""",
             (truck_id,),
         ).fetchone()
+        # Only increment views if the viewer is not the truck's dealer
+        if row and not (user and user["id"] == row["dealer_id"]):
+            conn.execute("UPDATE trucks SET views = views + 1 WHERE id = ?", (truck_id,))
     if not row:
         raise HTTPException(status_code=404, detail="Truck not found")
     d = dict(row)

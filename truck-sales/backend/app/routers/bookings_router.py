@@ -109,6 +109,8 @@ def update_booking(booking_id: int, body: BookingUpdate, user=Depends(get_curren
             valid = ("pending", "confirmed", "cancelled", "completed")
             if body.status not in valid:
                 raise HTTPException(status_code=400, detail=f"Status must be one of {valid}")
+            if user["role"] == "customer" and body.status in ("confirmed", "completed"):
+                raise HTTPException(status_code=403, detail="Only dealers can confirm or complete bookings")
             updates.append("status = ?")
             params_list.append(body.status)
 
