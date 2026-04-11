@@ -33,7 +33,7 @@ def create_booking(body: BookingCreate, user=Depends(get_current_user)):
 
         cursor = conn.execute(
             "INSERT INTO bookings (truck_id, customer_id, dealer_id, amount, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?)",
-            (body.truck_id, user["id"], truck["dealer_id"], body.amount, body.payment_method, body.notes),
+            (body.truck_id, user["id"], truck["dealer_id"], truck["price"], body.payment_method, body.notes),
         )
         booking_id = cursor.lastrowid
 
@@ -111,6 +111,15 @@ def update_booking(booking_id: int, body: BookingUpdate, user=Depends(get_curren
                 raise HTTPException(status_code=400, detail=f"Status must be one of {valid}")
             if user["role"] == "customer" and body.status in ("confirmed", "completed"):
                 raise HTTPException(status_code=403, detail="Only dealers can confirm or complete bookings")
+            allowed_transitions = {
+                "pending": {"confirmed", "cancelled"},
+                "confirmed": {"completed", "cancelled"},
+                "completed": set(),
+                "cancelled": set(),
+            }
+            current_status = booking["status"]
+            if body.status not in allowed_transitions.get(current_status, set()):
+                raise HTTPException(status_code=400, detail=f"Cannot transition from '{current_status}' to '{body.status}'")
             updates.append("status = ?")
             params_list.append(body.status)
 
@@ -132,7 +141,7 @@ def update_booking(booking_id: int, body: BookingUpdate, user=Depends(get_curren
             conn.execute(f"UPDATE bookings SET {', '.join(updates)} WHERE id = ?", params_list)
 
             # Notify the other party
-            notify_user = booking["customer_id"] if user["role"] == "dealer" else booking["dealer_id"]
+            notify_user = booking["customer_id"] if user["role"] in ("dealer", "admin") else booking["dealer_id"]
             conn.execute(
                 "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
                 (notify_user, "booking_update", "Booking Updated",

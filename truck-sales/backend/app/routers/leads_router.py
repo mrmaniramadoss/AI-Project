@@ -123,7 +123,7 @@ def update_lead(lead_id: int, body: LeadUpdate, user=Depends(get_current_user)):
             conn.execute(f"UPDATE leads SET {', '.join(updates)} WHERE id = ?", params_list)
 
             # Notify the other party
-            notify_user = lead["customer_id"] if user["role"] == "dealer" else lead["dealer_id"]
+            notify_user = lead["customer_id"] if user["role"] in ("dealer", "admin") else lead["dealer_id"]
             conn.execute(
                 "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, ?, ?, ?, ?)",
                 (notify_user, "lead_update", "Inquiry Updated",
