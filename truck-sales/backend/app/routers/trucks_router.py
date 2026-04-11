@@ -55,6 +55,7 @@ def list_trucks(
     condition: Optional[str] = None,
     transmission: Optional[str] = None,
     availability: Optional[str] = None,
+    dealer_id: Optional[int] = None,
     price_min: Optional[float] = None,
     price_max: Optional[float] = None,
     load_min: Optional[float] = None,
@@ -98,6 +99,9 @@ def list_trucks(
     if availability:
         where_clauses.append("t.availability = ?")
         params.append(availability)
+    if dealer_id is not None:
+        where_clauses.append("t.dealer_id = ?")
+        params.append(dealer_id)
     if price_min is not None:
         where_clauses.append("t.price >= ?")
         params.append(price_min)

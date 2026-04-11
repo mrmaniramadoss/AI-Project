@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 interface Truck {
   id: number;
@@ -17,6 +18,7 @@ interface Truck {
 
 export default function MyTrucksPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [trucks, setTrucks] = useState<Truck[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +28,7 @@ export default function MyTrucksPage() {
 
   const fetchTrucks = async () => {
     try {
-      const res = await api.get('/trucks?per_page=50');
+      const res = await api.get(`/trucks?per_page=50${user?.id ? `&dealer_id=${user.id}` : ''}`);
       setTrucks(res.data.items);
     } catch {
       // ignore

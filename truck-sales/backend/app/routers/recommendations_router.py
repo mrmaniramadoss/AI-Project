@@ -95,7 +95,7 @@ def get_recommendations(limit: int = 6, user=Depends(get_current_user)):
         if order_parts:
             # Build the full query with scoring
             score_expr = " + ".join(order_parts)
-            all_params = params + params_for_brand + params_for_fuel + [limit]
+            all_params = params_for_brand + params_for_fuel + params + [limit]
             rows = conn.execute(
                 f"""SELECT t.*, u.username as dealer_name, u.company as dealer_company,
                            ({score_expr}) as relevance_score
