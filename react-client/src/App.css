@@ -13,14 +13,116 @@ body {
   color: #0f172a;
 }
 
-.page {
+/* ── App Shell ── */
+.appShell {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+}
+
+.mainContent {
+  flex: 1;
   padding: 24px;
 }
 
+.pageContent {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Navbar ── */
+.navbar {
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+  padding: 0 24px;
+}
+
+.navInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  gap: 24px;
+}
+
+.navBrand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  margin-right: auto;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navLink {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navLink:hover,
+.navLink.navLinkActive {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navUser {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.navButtonPrimary {
+  background: #fff;
+  color: #1d4ed8;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.navButtonPrimary:hover {
+  background: #e0e7ff;
+}
+
+/* ── Card (shared, for Predict page) ── */
 .card {
   width: min(1050px, 100%);
   background: #ffffff;
@@ -28,6 +130,7 @@ body {
   box-shadow: 0 14px 35px rgba(15, 23, 42, 0.14);
   padding: 28px;
   border: 1px solid #e2e8f0;
+  margin: 0 auto;
 }
 
 .cardHeader h1 {
@@ -37,10 +140,23 @@ body {
 }
 
 .cardHeader p {
-  margin: 8px 0 20px;
+  margin: 8px 0 16px;
   color: #475569;
 }
 
+.savedBadge {
+  display: inline-block;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #a7f3d0;
+  margin-bottom: 8px;
+}
+
+/* ── Predict Form ── */
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -126,12 +242,301 @@ body {
   font-weight: 600;
 }
 
+/* ── Auth Pages (Login / Register) ── */
+.authPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 56px - 48px);
+}
+
+.authCard {
+  width: min(420px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.14);
+  padding: 32px;
+  border: 1px solid #e2e8f0;
+}
+
+.authTitle {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  color: #1d4ed8;
+}
+
+.authSubtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0 0 24px;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.authLink {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.authLink:hover {
+  text-decoration: underline;
+}
+
+.authFooter {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ── Dashboard ── */
+.pageTitle {
+  font-size: 1.6rem;
+  color: #1d4ed8;
+  margin: 0 0 20px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.statLabel {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 4px;
+}
+
+.chartCard,
+.recentCard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  margin-bottom: 24px;
+}
+
+.chartTitle {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.emptyText {
+  color: #94a3b8;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ── Data Tables (Dashboard + Reports) ── */
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataTable th,
+.dataTable td {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+
+.dataTable th {
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.dataTable td {
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.dataTable tr:hover td {
+  background: #f8fafc;
+}
+
+.priceCell {
+  font-weight: 600;
+  color: #059669;
+}
+
+/* ── Reports ── */
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.pageHeader .pageTitle {
+  margin: 0;
+}
+
+.exportButton {
+  padding: 8px 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.exportButton:hover {
+  background: #f1f5f9;
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filterLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.filterInput {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.filterInput:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filterButton {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.filterButton:hover {
+  background: #1d4ed8;
+}
+
+.reportsTableWrapper {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pagination button {
+  padding: 6px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ── Responsive ── */
 @media (max-width: 860px) {
   .card {
     padding: 22px;
   }
-
   .formGrid {
     grid-template-columns: 1fr;
+  }
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .navbar {
+    padding: 0 12px;
+  }
+  .navLink {
+    padding: 6px 8px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  .filterBar {
+    flex-direction: column;
+  }
+  .pageHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
   }
 }

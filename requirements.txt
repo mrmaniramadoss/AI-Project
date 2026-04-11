@@ -2,3 +2,6 @@ pandas
 scikit-learn
 fastapi
 uvicorn[standard]
+pyjwt
+bcrypt
+python-multipart
